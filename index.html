@@ -14,6 +14,7 @@
             --gold: #D4AF37;
             --text-dark: #2C2C2C;
             --bg-white: #FAFAFA;
+            --locked-gray: #e0e0e0;
         }
 
         body {
@@ -22,7 +23,7 @@
             color: var(--text-dark);
             margin: 0;
             padding: 0;
-            padding-bottom: 80px; /* Platz für den Eiffelturm unten */
+            padding-bottom: 80px; 
             -webkit-font-smoothing: antialiased;
         }
 
@@ -71,12 +72,34 @@
             overflow: hidden;
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
             border: 1px solid rgba(212, 175, 55, 0.2);
-            opacity: 0; 
-            display: none; /* Standardmäßig ausgeblendet */
-            transition: transform 0.5s ease;
+            transition: all 0.5s ease;
         }
 
-        /* Style für "Los geht's" Wegpunkte (weniger prominent) */
+        /* LOCKED STATE STYLES */
+        .event-card.locked {
+            background: #fafafa;
+            border: 1px dashed #ccc;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .event-card.locked .card-body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100px;
+            color: #aaa;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+        }
+
+        .event-card.locked .time-badge {
+            background-color: #999; /* Grau statt Rot wenn locked */
+            box-shadow: none;
+        }
+
+        /* Style für "Los geht's" Wegpunkte */
         .event-card.waypoint {
             background: #fff;
             box-shadow: none;
@@ -104,7 +127,6 @@
 
         /* Animation zum Einblenden */
         .reveal {
-            display: block;
             animation: fadeIn 0.8s ease-out forwards;
         }
 
@@ -129,6 +151,7 @@
             font-weight: 600;
             font-size: 0.85rem;
             box-shadow: 0 2px 5px rgba(211, 47, 47, 0.3);
+            transition: background-color 0.3s;
         }
 
         .card-body {
@@ -174,7 +197,7 @@
         .barcode-img {
             max-width: 100%;
             height: auto;
-            mix-blend-mode: multiply; /* Damit der Hintergrund weiß bleibt */
+            mix-blend-mode: multiply;
         }
 
         .ticket-label {
@@ -185,37 +208,27 @@
             margin-bottom: 5px;
         }
 
-        /* Locked State */
-        .locked-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: #aaa;
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-        }
-
-        /* Deko-Icons */
-        .deco-icon {
-            text-align: center;
-            font-size: 3rem;
-            margin-top: 30px;
-            cursor: pointer;
-            transition: transform 0.3s;
-            user-select: none;
-        }
-        
-        .deco-icon:hover {
-            transform: scale(1.1) rotate(5deg);
-        }
-        
+        /* Croissant Icon */
         .croissant-icon {
             position: fixed;
             bottom: 20px;
             right: 20px;
             font-size: 2rem;
-            opacity: 0.5;
+            background: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 50;
             cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .croissant-icon:active {
+            transform: scale(0.9);
         }
 
     </style>
@@ -224,13 +237,13 @@
 
     <header>
         <h1>Ritas 60. Geburtstag</h1>
-        <div class="subtitle">Herzlichen Glückwunsch zu deinem Geburtstag liebe Mama. Wir freuen uns auf einen unvergesslichen Tag. Lass dich überraschen und gucke regelmäßig auf diese Seite. Die Events sind eine Stunde vor Start sichtbar. <br>Deine drei Männner, und Pauline!</div>
+        <div class="subtitle">Herzlichen Glückwunsch liebe Mama! Die Events sind 1h vor Start sichtbar. <br>Falls du zu neugierig bist, klicke auf das Croissant für einen kleinen Vorgeschmack... <br>Deine drei Männer, und Pauline!</div>
     </header>
 
     <div class="container" id="timeline">
         </div>
 
-    <div class="croissant-icon" onclick="unlockAll()" title="Klicken für das volle Programm">🥐</div>
+    <div class="croissant-icon" onclick="unlockNext()" title="Nächstes Event enthüllen">🥐</div>
 
     <script>
         // ==========================================
@@ -252,7 +265,8 @@
                 location: "Hilton Paris Opéra",
                 description: "Bei Verspätung kommt Lukas nach.", 
                 isWaypoint: true
-            },            {
+            },
+            {
                 time: "2026-02-20T12:00:00",
                 title: "Los geht´s!",
                 location: "Trocadero Metro Station",
@@ -287,7 +301,7 @@
                 location: "Galerie Lafayette",
                 description: "Paris ist nicht nur die Stadt der Liebe, sondern symbolisiert auch Geschmack, Weiblichkeit und gute Kleidung. Gemeinsam mit Pauline habt Ihr Plätze zur Modenschau in der Galerie Lafayette. Nach der Inspiration dort habt Ihr noch genügend Zeit für eine Tasse Kaffee auf der Dachterasse oder etwas Shopping. <br><br>Wir brechen um 18:30 Uhr zum Abendessen auf. Ihr braucht etwa 10 Minuten zurück ins Hotel.",
                 isWaypoint: false,
-                ticketNumber: "1362478959" // HIER IST DIE TICKET NUMMER
+                ticketNumber: "1362478959" 
             },
             {
                 time: "2026-02-20T18:30:00",
@@ -312,44 +326,80 @@
             }
         ];
 
-        // Status-Variable für den "Cheat Mode"
-        let isUnlocked = false;
+        // Zähler für manuelle Freischaltungen
+        let manualUnlockCount = 0;
 
-        function unlockAll() {
-            if (!isUnlocked) {
-                isUnlocked = true;
-                alert("✨ Surprise! Das ganze Programm ist jetzt sichtbar! ✨");
-                renderEvents();
-                // Scroll to top gently
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+        function unlockNext() {
+            manualUnlockCount++;
+            // Kleines Feedback
+            const croissant = document.querySelector('.croissant-icon');
+            croissant.style.transform = "scale(1.2)";
+            setTimeout(() => croissant.style.transform = "scale(1)", 200);
+            
+            renderEvents();
         }
 
         function renderEvents() {
             const container = document.getElementById('timeline');
-            container.innerHTML = ''; // Inhalt leeren
+            container.innerHTML = ''; 
             
             const now = new Date(); 
-            // ZUM TESTEN HIER DIE ZEIT ÄNDERN (Kommentar entfernen):
-            // const now = new Date("2026-02-20T15:00:00"); 
+            // ZUM TESTEN:
+            // const now = new Date("2026-02-20T11:30:00"); 
 
-            let futureEventsCount = 0;
-
+            // 1. Schritt: Zählen, wie viele Events durch ZEIT sichtbar sein sollten
+            let timeRevealedCount = 0;
             events.forEach(event => {
                 const eventDate = new Date(event.time);
-                // Reveal Time = 1 Stunde vorher
-                const revealTime = new Date(eventDate.getTime() - (1 * 60 * 60 * 1000));
+                const revealTime = new Date(eventDate.getTime() - (1 * 60 * 60 * 1000)); // 1h vorher
+                if (now >= revealTime) {
+                    timeRevealedCount++;
+                }
+            });
 
-                // Prüfen: Ist es Zeit (oder Cheat Mode aktiv)?
-                if (isUnlocked || now >= revealTime) {
+            // 2. Schritt: Gesamtzahl der offenen Karten (Zeit + Klicks auf Croissant)
+            // Darf nicht höher sein als die Gesamtzahl der Events
+            const totalVisibleIndex = Math.min(timeRevealedCount + manualUnlockCount, events.length);
+
+            // 3. Schritt: Rendern
+            events.forEach((event, index) => {
+                const eventDate = new Date(event.time);
+                const timeString = eventDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+                // Entscheidung: Ist DIESES Event freigeschaltet?
+                // Index beginnt bei 0. Wenn index < totalVisibleIndex, dann zeigen.
+                const isUnlocked = index < totalVisibleIndex;
+
+                const card = document.createElement('div');
+                
+                if (!isUnlocked) {
+                    // === LOCKED CARD (Zeigt nur Uhrzeit) ===
+                    card.className = 'event-card reveal locked';
+                    card.innerHTML = `
+                        <div class="card-header">
+                             <span class="time-badge">${timeString} Uhr</span>
+                        </div>
+                        <div class="card-body">
+                            <span>??? Noch geheim ???</span>
+                        </div>
+                    `;
+                } else {
+                    // === UNLOCKED CARD (Zeigt alles) ===
                     
-                    const card = document.createElement('div');
-                    
-                    // Unterscheidung Styles: Normal vs. Wegpunkt
+                    // Ticket Logik
+                    let ticketHtml = '';
+                    if (event.ticketNumber) {
+                        ticketHtml = `
+                            <div class="ticket-area">
+                                <div class="ticket-label">Eintrittskarte</div>
+                                <img src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${event.ticketNumber}&scale=3&rot=N&incltext&backgroundcolor=ffffff" alt="Ticket Barcode" class="barcode-img">
+                            </div>
+                        `;
+                    }
+
                     if (event.isWaypoint) {
+                        // Waypoint Style
                         card.className = 'event-card reveal waypoint';
-                        const timeString = eventDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                        
                         card.innerHTML = `
                             <div class="card-header">
                                 <h2>${event.title}</h2>
@@ -360,20 +410,8 @@
                             </div>
                         `;
                     } else {
+                        // Full Event Style
                         card.className = 'event-card reveal';
-                        const timeString = eventDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                        
-                        // Ticket HTML vorbereiten (falls Ticket vorhanden)
-                        let ticketHtml = '';
-                        if (event.ticketNumber) {
-                            ticketHtml = `
-                                <div class="ticket-area">
-                                    <div class="ticket-label">Eintrittskarte</div>
-                                    <img src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${event.ticketNumber}&scale=3&rot=N&incltext&backgroundcolor=ffffff" alt="Ticket Barcode" class="barcode-img">
-                                </div>
-                            `;
-                        }
-
                         card.innerHTML = `
                             <div class="card-header">
                                 <span class="time-badge">${timeString} Uhr</span>
@@ -386,25 +424,14 @@
                             </div>
                         `;
                     }
-                    container.appendChild(card);
-                } else {
-                    futureEventsCount++;
                 }
+                
+                container.appendChild(card);
             });
-
-            // Nachricht, wenn noch Events versteckt sind
-            if (futureEventsCount > 0 && !isUnlocked) {
-                const message = document.createElement('div');
-                message.className = 'locked-message';
-                message.innerHTML = `... noch ${futureEventsCount} Überraschungen warten ...<br><small>Schau 1h vor dem nächsten Termin wieder rein!</small>`;
-                container.appendChild(message);
-            }
         }
 
-        // Sofort starten
+        // Init
         renderEvents();
-
-        // Jede Minute aktualisieren
         setInterval(renderEvents, 60000);
 
     </script>
