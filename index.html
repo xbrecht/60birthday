@@ -36,7 +36,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 90;
         }
 
         h1 {
@@ -222,13 +222,90 @@
             justify-content: center;
             align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 50;
+            z-index: 95;
             cursor: pointer;
             transition: transform 0.2s;
         }
         
         .croissant-icon:active {
             transform: scale(0.9);
+        }
+
+        /* --- MODAL (POPUP) STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-box {
+            background: white;
+            width: 85%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid var(--gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--primary-red);
+            margin-top: 0;
+        }
+
+        .modal-box p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-yes {
+            background-color: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
+        }
+
+        .btn-no {
+            background-color: transparent;
+            color: #888;
+            border: 2px solid #ddd;
+            padding: 12px;
+            border-radius: 25px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
         }
 
     </style>
@@ -243,7 +320,18 @@
     <div class="container" id="timeline">
         </div>
 
-    <div class="croissant-icon" onclick="unlockNext()" title="Nächstes Event enthüllen">🥐</div>
+    <div class="croissant-icon" onclick="showModal()" title="Nächstes Event enthüllen">🥐</div>
+
+    <div id="unlockModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Oh là là!</h3>
+            <p>Bist Du so ungeduldig und möchtest schon den nächsten Programmpunkt sehen?</p>
+            <div class="modal-buttons">
+                <button class="btn-yes" onclick="confirmUnlock()">Oui, s'il vous plaît!</button>
+                <button class="btn-no" onclick="closeModal()">Non, ich warte</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ==========================================
@@ -329,14 +417,24 @@
         // Zähler für manuelle Freischaltungen
         let manualUnlockCount = 0;
 
-        function unlockNext() {
+        // --- MODAL FUNKTIONEN ---
+        function showModal() {
+            document.getElementById('unlockModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('unlockModal').style.display = 'none';
+        }
+
+        function confirmUnlock() {
             manualUnlockCount++;
-            // Kleines Feedback
-            const croissant = document.querySelector('.croissant-icon');
-            croissant.style.transform = "scale(1.2)";
-            setTimeout(() => croissant.style.transform = "scale(1)", 200);
-            
+            closeModal();
             renderEvents();
+            
+            // Kleines Feedback Animation am Croissant
+            const croissant = document.querySelector('.croissant-icon');
+            croissant.style.transform = "scale(1.2) rotate(10deg)";
+            setTimeout(() => croissant.style.transform = "scale(1) rotate(0deg)", 300);
         }
 
         function renderEvents() {
@@ -357,8 +455,7 @@
                 }
             });
 
-            // 2. Schritt: Gesamtzahl der offenen Karten (Zeit + Klicks auf Croissant)
-            // Darf nicht höher sein als die Gesamtzahl der Events
+            // 2. Schritt: Gesamtzahl der offenen Karten (Zeit + Manuell)
             const totalVisibleIndex = Math.min(timeRevealedCount + manualUnlockCount, events.length);
 
             // 3. Schritt: Rendern
@@ -366,14 +463,17 @@
                 const eventDate = new Date(event.time);
                 const timeString = eventDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
-                // Entscheidung: Ist DIESES Event freigeschaltet?
+                // Ist dieses Event unlocked?
                 // Index beginnt bei 0. Wenn index < totalVisibleIndex, dann zeigen.
+                // ALSO: Karten 0 bis (totalVisibleIndex - 1) sind offen.
+                // Karte [index] ist offen, wenn index < totalVisibleIndex
+                
                 const isUnlocked = index < totalVisibleIndex;
 
                 const card = document.createElement('div');
                 
                 if (!isUnlocked) {
-                    // === LOCKED CARD (Zeigt nur Uhrzeit) ===
+                    // === LOCKED CARD ===
                     card.className = 'event-card reveal locked';
                     card.innerHTML = `
                         <div class="card-header">
@@ -384,7 +484,7 @@
                         </div>
                     `;
                 } else {
-                    // === UNLOCKED CARD (Zeigt alles) ===
+                    // === UNLOCKED CARD ===
                     
                     // Ticket Logik
                     let ticketHtml = '';
