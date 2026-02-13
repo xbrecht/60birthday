@@ -53,6 +53,7 @@
             letter-spacing: 2px;
             margin-top: 10px;
             font-weight: 600;
+            line-height: 1.5;
         }
 
         /* Container for events */
@@ -162,6 +163,28 @@
             font-size: 0.95rem;
         }
 
+        /* Ticket / Barcode Style */
+        .ticket-area {
+            margin-top: 20px;
+            text-align: center;
+            border-top: 2px dashed #eee;
+            padding-top: 15px;
+        }
+
+        .barcode-img {
+            max-width: 100%;
+            height: auto;
+            mix-blend-mode: multiply; /* Damit der Hintergrund weiß bleibt */
+        }
+
+        .ticket-label {
+            font-size: 0.7rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
         /* Locked State */
         .locked-message {
             text-align: center;
@@ -192,6 +215,7 @@
             font-size: 2rem;
             opacity: 0.5;
             z-index: 50;
+            cursor: pointer;
         }
 
     </style>
@@ -200,7 +224,7 @@
 
     <header>
         <h1>Ritas 60. Geburtstag</h1>
-        <div class="subtitle">Herzlichen Glückwunsch zu deinem Geburtstag liebe Mama. Wir freuen uns auf einen unvergesslichen Tag. Lass dich überraschen und gucke regelmäßig auf diese Seite. Die Events sind eine Stunde vor Start sichtbar. Deine beidden Jungs!</div>
+        <div class="subtitle">Herzlichen Glückwunsch zu deinem Geburtstag liebe Mama. Wir freuen uns auf einen unvergesslichen Tag. Lass dich überraschen und gucke regelmäßig auf diese Seite. Die Events sind eine Stunde vor Start sichtbar. <br>Deine beiden Jungs!</div>
     </header>
 
     <div class="container" id="timeline">
@@ -226,14 +250,14 @@
                 time: "2026-02-20T12:00:00",
                 title: "Los geht´s!",
                 location: "Trocadero Metro Station",
-                description: "", // Keine Beschreibung für Wegpunkte nötig
+                description: "", 
                 isWaypoint: true
             },
             {
                 time: "2026-02-20T12:15:00",
                 title: "Bootsfahrt",
                 location: "Au bord de la Seine unter dem Eiffelturm",
-                description: "Wie kann man seinen 60. denn besser starten, als auf dem Wasser mit einem leckeren Gläschen Campagner und einem wunderschönen Blick auf Paris? Wir fahren per Hop-On Hop-Off Boot die Seine entlang. Auf dem Rückweg steigen wir am Louvre aus.",
+                description: "Wie kann man seinen 60. denn besser starten, als auf dem Wasser mit einem leckeren Gläschen Champagner und einem wunderschönen Blick auf Paris? Wir fahren per Hop-On Hop-Off Boot die Seine entlang. Auf dem Rückweg steigen wir am Louvre aus.",
                 isWaypoint: false
             },
             {
@@ -247,7 +271,7 @@
                 time: "2026-02-20T14:00:00",
                 title: "Crêpe Suzette für Zwischendurch",
                 location: "Midi12 La Fayette",
-                description: "Was wäre denn ein Trip nach Paris ohne einen Cêpe? ",
+                description: "Was wäre denn ein Trip nach Paris ohne einen Crêpe?",
                 isWaypoint: false
             },
 
@@ -256,7 +280,8 @@
                 title: "High Fashion & Shopping",
                 location: "Galerie Lafayette",
                 description: "Paris ist nicht nur die Stadt der Liebe, sondern symbolisiert auch Geschmack, Weiblichkeit und gute Kleidung. Gemeinsam mit Pauline habt Ihr Plätze zur Modenschau in der Galerie Lafayette. Nach der Inspiration dort habt Ihr noch genügend Zeit für eine Tasse Kaffee auf der Dachterasse oder etwas Shopping. <br><br>Wir brechen um 18:30 Uhr zum Abendessen auf. Ihr braucht etwa 10 Minuten zurück ins Hotel.",
-                isWaypoint: false
+                isWaypoint: false,
+                ticketNumber: "1362478959" // HIER IST DIE TICKET NUMMER
             },
             {
                 time: "2026-02-20T18:30:00",
@@ -300,7 +325,7 @@
             
             const now = new Date(); 
             // ZUM TESTEN HIER DIE ZEIT ÄNDERN (Kommentar entfernen):
-            // const now = new Date("2026-02-20T14:00:00"); 
+            // const now = new Date("2026-02-20T15:00:00"); 
 
             let futureEventsCount = 0;
 
@@ -332,6 +357,17 @@
                         card.className = 'event-card reveal';
                         const timeString = eventDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                         
+                        // Ticket HTML vorbereiten (falls Ticket vorhanden)
+                        let ticketHtml = '';
+                        if (event.ticketNumber) {
+                            ticketHtml = `
+                                <div class="ticket-area">
+                                    <div class="ticket-label">Eintrittskarte</div>
+                                    <img src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${event.ticketNumber}&scale=3&rot=N&incltext&backgroundcolor=ffffff" alt="Ticket Barcode" class="barcode-img">
+                                </div>
+                            `;
+                        }
+
                         card.innerHTML = `
                             <div class="card-header">
                                 <span class="time-badge">${timeString} Uhr</span>
@@ -340,6 +376,7 @@
                                 <h2>${event.title}</h2>
                                 <div class="location">${event.location}</div>
                                 <div class="description">${event.description}</div>
+                                ${ticketHtml}
                             </div>
                         `;
                     }
