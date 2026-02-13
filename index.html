@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rita's 60. Geburtstag</title>
+    <title>Ritas 60. Geburtstag</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-red: #D32F2F; /* Lipstick Red */
+            --primary-red: #D32F2F; /* Lippenstift-Rot */
             --soft-pink: #FCE4EC;
             --gold: #D4AF37;
             --text-dark: #2C2C2C;
@@ -22,7 +22,7 @@
             color: var(--text-dark);
             margin: 0;
             padding: 0;
-            padding-bottom: 50px;
+            padding-bottom: 80px; /* Platz für den Eiffelturm unten */
             -webkit-font-smoothing: antialiased;
         }
 
@@ -40,14 +40,14 @@
 
         h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
+            font-size: 2.0rem;
             margin: 0;
             color: var(--text-dark);
             font-style: italic;
         }
 
         .subtitle {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--gold);
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -62,20 +62,46 @@
             padding: 20px;
         }
 
-        /* Event Card Styling */
+        /* Standard Event Card */
         .event-card {
             background: white;
             border-radius: 12px;
             margin-bottom: 25px;
             overflow: hidden;
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            border: 1px solid rgba(212, 175, 55, 0.2); /* Subtle gold border */
-            transition: transform 0.3s ease;
-            opacity: 0; /* Hidden by default */
-            display: none; /* Removed from layout by default */
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            opacity: 0; 
+            display: none; /* Standardmäßig ausgeblendet */
+            transition: transform 0.5s ease;
         }
 
-        /* Animation for revealing */
+        /* Style für "Los geht's" Wegpunkte (weniger prominent) */
+        .event-card.waypoint {
+            background: #fff;
+            box-shadow: none;
+            border: 1px dashed var(--gold);
+            margin-bottom: 15px;
+        }
+        
+        .event-card.waypoint .card-header {
+            background-color: transparent;
+            padding: 10px 15px;
+            border-bottom: none;
+        }
+
+        .event-card.waypoint h2 {
+            font-size: 1.1rem;
+            margin: 0;
+            color: #777;
+        }
+        
+        .event-card.waypoint .time-badge {
+            background-color: #777;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+        }
+
+        /* Animation zum Einblenden */
         .reveal {
             display: block;
             animation: fadeIn 0.8s ease-out forwards;
@@ -136,7 +162,7 @@
             font-size: 0.95rem;
         }
 
-        /* Locked State (Future Events) */
+        /* Locked State */
         .locked-message {
             text-align: center;
             padding: 40px 20px;
@@ -145,12 +171,27 @@
             font-style: italic;
         }
 
-        /* Eiffel Tower Icon decoration */
-        .icon-deco {
+        /* Deko-Icons */
+        .deco-icon {
             text-align: center;
-            font-size: 2rem;
+            font-size: 3rem;
             margin-top: 30px;
-            opacity: 0.3;
+            cursor: pointer;
+            transition: transform 0.3s;
+            user-select: none;
+        }
+        
+        .deco-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .croissant-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 2rem;
+            opacity: 0.5;
+            z-index: 50;
         }
 
     </style>
@@ -158,99 +199,162 @@
 <body>
 
     <header>
-        <h1>Rita's 60. Geburtstag</h1>
-        <div class="subtitle">A Weekend in Paris Style</div>
+        <h1>Ritas 60. Geburtstag</h1>
+        <div class="subtitle">Paris, Mon Amour</div>
     </header>
 
     <div class="container" id="timeline">
         </div>
 
-    <div class="icon-deco">🗼</div>
+    <div class="deco-icon" onclick="unlockAll()" title="Klicken für das volle Programm">🗼</div>
+    <div class="croissant-icon">🥐</div>
 
     <script>
         // ==========================================
-        // CONFIGURATION AREA - ENTER YOUR EVENTS HERE
-        // Format: 'YYYY-MM-DDTHH:MM:00' (Year-Month-Day T Hour:Minute:00)
-        // ==========================================
-        const events = [
-            {
-                time: "2024-10-25T14:00:00", // Start Date & Time
-                title: "Welcome Champagne",
-                location: "Hotel Le Grand, Lobby",
-                description: "Bienvenue! We start the weekend with a glass of champagne to celebrate Rita's arrival."
-            },
-            {
-                time: "2024-10-25T18:00:00",
-                title: "Dinner at Chez L'Ami Louis",
-                location: "32 Rue du Vertbois",
-                description: "A classic bistro experience. Bring your appetite and your best Emily Cooper outfit."
-            },
-            {
-                time: "2024-10-26T10:00:00",
-                title: "Morning Croissant Tour",
-                location: "Montmartre Steps",
-                description: "We will find the best butter croissant in the city. Wear comfortable shoes!"
-            },
-            // ADD MORE EVENTS HERE BY COPYING THE BLOCKS ABOVE
-        ];
-
-        // ==========================================
-        // LOGIC (DO NOT TOUCH UNLESS YOU KNOW JS)
+        // KONFIGURATION - DEINE EVENTS
+        // Datum: 20. Februar 2026
         // ==========================================
         
+        const events = [
+            {
+                time: "2026-02-20T11:00:00", 
+                title: "Frühstück und Ankunft Pauline & Felix",
+                location: "Hilton Paris Opera",
+                description: "Alles Gute zu deinem Geburtstag und Santé zu einem wunderschönen Tag!",
+                isWaypoint: false
+            },
+            {
+                time: "2026-02-20T12:00:00",
+                title: "Los geht´s!",
+                location: "Grand Palais",
+                description: "", // Keine Beschreibung für Wegpunkte nötig
+                isWaypoint: true
+            },
+            {
+                time: "2026-02-20T13:00:00",
+                title: "Bootsfahrt",
+                location: "Auf der Seine (mit Champagner)",
+                description: "Wie kann man seinen 60. denn besser starten, als mit einem leckeren Gläschen Campus und einem wunderschönen Blick auf Paris?",
+                isWaypoint: false
+            },
+            {
+                time: "2026-02-20T14:15:00",
+                title: "Los geht´s!",
+                location: "Opéra Metro Station",
+                description: "",
+                isWaypoint: true
+            },
+            {
+                time: "2026-02-20T15:00:00",
+                title: "High Fashion & Shopping",
+                location: "Galerie Lafayette",
+                description: "Paris ist nicht nur die Stadt der Liebe, sondern symbolisiert auch Geschmack, Weiblichkeit und gute Kleidung. Gemeinsam mit Pauline habt Ihr Plätze zur Modenschau in der Galerie Lafayette. Nach der Inspiration dort habt Ihr noch genügend Zeit für eine Tasse Kaffee auf der Dachterasse oder etwas Shopping. <br><br>Wir brechen um 18:30 Uhr zum Abendessen auf. Ihr braucht etwa 10 Minuten zurück ins Hotel.",
+                isWaypoint: false
+            },
+            {
+                time: "2026-02-20T18:30:00",
+                title: "Los geht´s!",
+                location: "Le Centre Pompidou",
+                description: "",
+                isWaypoint: true
+            },
+            {
+                time: "2026-02-20T19:00:00",
+                title: "Abendessen",
+                location: "Bombance, Marais",
+                description: "Im Bombance erwartet uns eine Inspiration der französischen Küche. Entweder einzeln oder im Menü bekommen wir spannende und frische Gerichte. Abgerundet mit der ein oder anderen Flasche Wein erwartet uns französische Kulinarik. Simpel und genial zugleich!",
+                isWaypoint: false
+            },
+            {
+                time: "2026-02-20T22:00:00",
+                title: "Auf ein Gläschen",
+                location: "Divvino Weinbar, Marais",
+                description: "Wir lassen den Abend gemeinsam ausklingen. Im Divvino sitzen wir bequem und stoßen gemeinsam auf dich an!",
+                isWaypoint: false
+            }
+        ];
+
+        // Status-Variable für den "Cheat Mode"
+        let isUnlocked = false;
+
+        function unlockAll() {
+            if (!isUnlocked) {
+                isUnlocked = true;
+                alert("✨ Surprise! Das ganze Programm ist jetzt sichtbar! ✨");
+                renderEvents();
+                // Scroll to top gently
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
         function renderEvents() {
             const container = document.getElementById('timeline');
-            container.innerHTML = ''; // Clear current content
+            container.innerHTML = ''; // Inhalt leeren
             
-            const now = new Date(); // Current time
-            // To test, you can fake the time by uncommenting the line below:
-            // const now = new Date("2024-10-25T17:00:00"); 
+            const now = new Date(); 
+            // ZUM TESTEN HIER DIE ZEIT ÄNDERN (Kommentar entfernen):
+            // const now = new Date("2026-02-20T14:00:00"); 
 
             let futureEventsCount = 0;
 
             events.forEach(event => {
                 const eventDate = new Date(event.time);
-                // Calculate 2 hours before the event
-                const revealTime = new Date(eventDate.getTime() - (2 * 60 * 60 * 1000));
+                // Reveal Time = 1 Stunde vorher
+                const revealTime = new Date(eventDate.getTime() - (1 * 60 * 60 * 1000));
 
-                // Check if we should show the event (Current time >= Reveal time)
-                if (now >= revealTime) {
-                    // Create HTML for the card
+                // Prüfen: Ist es Zeit (oder Cheat Mode aktiv)?
+                if (isUnlocked || now >= revealTime) {
+                    
                     const card = document.createElement('div');
-                    card.className = 'event-card reveal';
                     
-                    // Format time nicely (e.g., 14:00)
-                    const timeString = eventDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                    
-                    card.innerHTML = `
-                        <div class="card-header">
-                            <span class="time-badge">${timeString} Uhr</span>
-                        </div>
-                        <div class="card-body">
-                            <h2>${event.title}</h2>
-                            <div class="location">${event.location}</div>
-                            <div class="description">${event.description}</div>
-                        </div>
-                    `;
+                    // Unterscheidung Styles: Normal vs. Wegpunkt
+                    if (event.isWaypoint) {
+                        card.className = 'event-card reveal waypoint';
+                        const timeString = eventDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                        
+                        card.innerHTML = `
+                            <div class="card-header">
+                                <h2>${event.title}</h2>
+                                <span class="time-badge">${timeString} Uhr</span>
+                            </div>
+                            <div class="card-body" style="padding-top:0;">
+                                <div class="location" style="margin-bottom:0;">${event.location}</div>
+                            </div>
+                        `;
+                    } else {
+                        card.className = 'event-card reveal';
+                        const timeString = eventDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                        
+                        card.innerHTML = `
+                            <div class="card-header">
+                                <span class="time-badge">${timeString} Uhr</span>
+                            </div>
+                            <div class="card-body">
+                                <h2>${event.title}</h2>
+                                <div class="location">${event.location}</div>
+                                <div class="description">${event.description}</div>
+                            </div>
+                        `;
+                    }
                     container.appendChild(card);
                 } else {
                     futureEventsCount++;
                 }
             });
 
-            // If there are future events hidden, show a teaser message
-            if (futureEventsCount > 0) {
+            // Nachricht, wenn noch Events versteckt sind
+            if (futureEventsCount > 0 && !isUnlocked) {
                 const message = document.createElement('div');
                 message.className = 'locked-message';
-                message.innerHTML = `... ${futureEventsCount} more surprises loading soon ...<br><small>Check back 2 hours before the next event!</small>`;
+                message.innerHTML = `... noch ${futureEventsCount} Überraschungen warten ...<br><small>Schau 1h vor dem nächsten Termin wieder rein!</small>`;
                 container.appendChild(message);
             }
         }
 
-        // Run immediately
+        // Sofort starten
         renderEvents();
 
-        // Re-check every minute (so the user doesn't have to refresh constantly)
+        // Jede Minute aktualisieren
         setInterval(renderEvents, 60000);
 
     </script>
