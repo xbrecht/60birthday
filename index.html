@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rita's 60. Geburtstag</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-red: #D32F2F; /* Lipstick Red */
+            --soft-pink: #FCE4EC;
+            --gold: #D4AF37;
+            --text-dark: #2C2C2C;
+            --bg-white: #FAFAFA;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-white);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 50px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header Style */
+        header {
+            background-color: #fff;
+            text-align: center;
+            padding: 40px 20px 20px;
+            border-bottom: 3px solid var(--primary-red);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            margin: 0;
+            color: var(--text-dark);
+            font-style: italic;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* Container for events */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Event Card Styling */
+        .event-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 1px solid rgba(212, 175, 55, 0.2); /* Subtle gold border */
+            transition: transform 0.3s ease;
+            opacity: 0; /* Hidden by default */
+            display: none; /* Removed from layout by default */
+        }
+
+        /* Animation for revealing */
+        .reveal {
+            display: block;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            background-color: var(--soft-pink);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time-badge {
+            background-color: var(--primary-red);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 5px rgba(211, 47, 47, 0.3);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .location {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .location::before {
+            content: "📍";
+            margin-right: 5px;
+        }
+
+        .description {
+            line-height: 1.6;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        /* Locked State (Future Events) */
+        .locked-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #aaa;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+        }
+
+        /* Eiffel Tower Icon decoration */
+        .icon-deco {
+            text-align: center;
+            font-size: 2rem;
+            margin-top: 30px;
+            opacity: 0.3;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Rita's 60. Geburtstag</h1>
+        <div class="subtitle">A Weekend in Paris Style</div>
+    </header>
+
+    <div class="container" id="timeline">
+        </div>
+
+    <div class="icon-deco">🗼</div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION AREA - ENTER YOUR EVENTS HERE
+        // Format: 'YYYY-MM-DDTHH:MM:00' (Year-Month-Day T Hour:Minute:00)
+        // ==========================================
+        const events = [
+            {
+                time: "2024-10-25T14:00:00", // Start Date & Time
+                title: "Welcome Champagne",
+                location: "Hotel Le Grand, Lobby",
+                description: "Bienvenue! We start the weekend with a glass of champagne to celebrate Rita's arrival."
+            },
+            {
+                time: "2024-10-25T18:00:00",
+                title: "Dinner at Chez L'Ami Louis",
+                location: "32 Rue du Vertbois",
+                description: "A classic bistro experience. Bring your appetite and your best Emily Cooper outfit."
+            },
+            {
+                time: "2024-10-26T10:00:00",
+                title: "Morning Croissant Tour",
+                location: "Montmartre Steps",
+                description: "We will find the best butter croissant in the city. Wear comfortable shoes!"
+            },
+            // ADD MORE EVENTS HERE BY COPYING THE BLOCKS ABOVE
+        ];
+
+        // ==========================================
+        // LOGIC (DO NOT TOUCH UNLESS YOU KNOW JS)
+        // ==========================================
+        
+        function renderEvents() {
+            const container = document.getElementById('timeline');
+            container.innerHTML = ''; // Clear current content
+            
+            const now = new Date(); // Current time
+            // To test, you can fake the time by uncommenting the line below:
+            // const now = new Date("2024-10-25T17:00:00"); 
+
+            let futureEventsCount = 0;
+
+            events.forEach(event => {
+                const eventDate = new Date(event.time);
+                // Calculate 2 hours before the event
+                const revealTime = new Date(eventDate.getTime() - (2 * 60 * 60 * 1000));
+
+                // Check if we should show the event (Current time >= Reveal time)
+                if (now >= revealTime) {
+                    // Create HTML for the card
+                    const card = document.createElement('div');
+                    card.className = 'event-card reveal';
+                    
+                    // Format time nicely (e.g., 14:00)
+                    const timeString = eventDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span class="time-badge">${timeString} Uhr</span>
+                        </div>
+                        <div class="card-body">
+                            <h2>${event.title}</h2>
+                            <div class="location">${event.location}</div>
+                            <div class="description">${event.description}</div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                } else {
+                    futureEventsCount++;
+                }
+            });
+
+            // If there are future events hidden, show a teaser message
+            if (futureEventsCount > 0) {
+                const message = document.createElement('div');
+                message.className = 'locked-message';
+                message.innerHTML = `... ${futureEventsCount} more surprises loading soon ...<br><small>Check back 2 hours before the next event!</small>`;
+                container.appendChild(message);
+            }
+        }
+
+        // Run immediately
+        renderEvents();
+
+        // Re-check every minute (so the user doesn't have to refresh constantly)
+        setInterval(renderEvents, 60000);
+
+    </script>
+</body>
+</html>
